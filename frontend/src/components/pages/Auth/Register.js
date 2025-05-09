@@ -1,22 +1,26 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 
 import Input from '../../form/Input'
 import { Link } from 'react-router-dom'
 
 import styles from '../../form/Form.module.css'
 
+/* contexts */
+import { Context } from '../../../context/UserContext'
+
 function Register() {
-  const [user, setUser] = useState({})
+    const [user, setUser] = useState({})
+    const { register } = useContext(Context)
+
 
 
     function handleChange(e) {
-      setUser({...user, [e.target.name]: e.target.value})
+        setUser({ ...user, [e.target.name]: e.target.value })
     }
 
     function handleSubmit(e) {
         e.preventDefault()
-        // enviar o usuario para o banco
-        console.log(user)
+        register(user)
     }
 
 
@@ -60,7 +64,7 @@ function Register() {
                     handleOnChange={handleChange}
                 />
 
-                <input type="submit" value="Cadastrar"/>
+                <input type="submit" value="Cadastrar" />
             </form>
             <p>
                 Já tem uma conta? <Link to="/login">Clique aqui.</Link>
