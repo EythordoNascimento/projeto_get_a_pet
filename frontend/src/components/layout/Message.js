@@ -1,33 +1,37 @@
-import { useState, useEffect } from 'react'
-import bus from '../../utils/bus'
-import styles from './Message.module.css'
+import React, { useEffect, useState } from "react";
+import bus from "../../utils/bus";
+
+import styles from "./Message.module.css";
 
 function Message() {
-    const [visibility, setVisibility] = useState(false)
-    const [message, setMessage] = useState('')
-    const [type, setType] = useState('')
+  let [visibility, setVisibility] = useState(false);
+  let [message, setMessage] = useState("");
+  let [type, setType] = useState("");
 
-    useEffect(() => {
+  useEffect(() => {
+    bus.addListener("flash", ({ message, type }) => {
+      setVisibility(true);
+      setMessage(message);
+      setType(type);
+      setTimeout(() => {
+        setVisibility(false);
+      }, 4000);
+    });
+  }, []);
 
-        bus.addListener('flash', ({ message, type }) => {
-            setVisibility(true)
-            setMessage(message)
-            setType(type)
+  useEffect(() => {
+    if (document.querySelector(".close") !== null) {
+      document
+        .querySelector(".close")
+        .addEventListener("click", () => setVisibility(false));
+    }
+  });
 
-
-            setTimeout(() => {
-                setVisibility(false)
-            }, 3000)
-
-        })
-
-    }, [])
-
-    return (
-        visibility && (
-            <div className={`${styles.message} ${styles[type]}`}>{message}</div>
-        )
+  return (
+    visibility && (
+      <div className={`${styles.message} ${styles[type]}`}>{message}</div>
     )
+  );
 }
 
-export default Message
+export default Message;
