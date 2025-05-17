@@ -1,20 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-/* components */
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import Container from './components/layout/Container'
-import Message from './components/layout/Message'
+/* Components */
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import Container from "./components/layout/Container";
+import Message from "./components/layout/Message";
 
-/* pages */
-import Login from './components/pages/Auth/Login';
-import Register from './components/pages/Auth/Register';
-import Home from './components/pages/Home';
+/* Pages */
+import Login from "./components/pages/Auth/Login";
+import Register from "./components/pages/Auth/Register";
+import Home from "./components/pages/Home";
+import Profile from "./components/pages/User/Profile";
 
-
-/* context */
-import { UseProvider, UserProvider } from './context/UserContext'
-
+/* Context */
+import { UserProvider } from "./context/UserContext"; // Removendo `UseProvider`, que não existe
 
 function App() {
   return (
@@ -26,6 +25,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/user/profile" element={<Profile />} /> 
             <Route path="/" element={<Home />} />
           </Routes>
         </Container>
