@@ -1,29 +1,54 @@
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import React, { useContext } from 'react'
 
-import styles from './NavBar.module.css'
+import styles from './Navbar.module.css'
 
 import Logo from '../../assets/img/logo.png'
 
-function Nabbar() {
-    return (
-       <nav className={styles.navbar}>
-        <div className={styles.navbar_logo}>
-            <img src={Logo} alt="Get A Pet"/>
-            <h2>Get A Pet</h2>
-        </div>
-        <ul>
+/* contexts */
+import { Context } from '../../context/UserContext'
+
+/* hooks */
+
+function Navbar() {
+  const { authenticated, logout } = useContext(Context)
+
+  return (
+    <nav className={styles.navbar}>
+      <div className={styles.navbar_logo}>
+        <img src={Logo} alt="Get A Pet" />
+        <h2>Get A Pet</h2>
+      </div>
+      <ul>
+        <li>
+          <Link to="/">Adotar</Link>
+        </li>
+        {authenticated ? (
+          <>
             <li>
-                <Link to="/">Adotar</Link>
+              <Link to="/pet/myadoptions">Minhas Adoções</Link>
             </li>
             <li>
-                <Link to="/login">Entrar</Link>
+              <Link to="/pet/mypets">Meus Pets</Link>
             </li>
             <li>
-                <Link to="/register">Cadastrar</Link>
+              <Link to="/user/profile">Meu Perfil</Link>
             </li>
-        </ul>
-       </nav>
-    )
+            <li onClick={logout}>Sair</li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link to="/login">Entrar</Link>
+            </li>
+            <li>
+              <Link to="/register">Registar</Link>
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  )
 }
 
-export default Nabbar
+export default Navbar
