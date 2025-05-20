@@ -8,6 +8,14 @@ Um espaço para conectar animais que precisam de um lar a pessoas que desejam ad
 
 🚧 **O projeto está em fase de desenvolvimento, com commits frequentes e melhorias constantes!** 🚧  
 
+🚀 Funcionalidades (em progresso)  
+
+✅ Cadastro de animais para adoção  
+✅ Busca de pets disponíveis  
+✅ Agendamento de visitas para conhecer os animais  
+✅ Sistema de acompanhamento da adoção  
+
+
 ## 🛠 Stack Tecnológica  
 
 Este projeto utiliza uma stack moderna para garantir eficiência e escalabilidade:  
@@ -15,11 +23,6 @@ Este projeto utiliza uma stack moderna para garantir eficiência e escalabilidad
 - **Frontend:** [React](https://react.dev/)  
 - **Backend:** [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/)  
 - **Banco de Dados:** [MongoDB](https://www.mongodb.com/)  
-- **API:** RESTful para comunicação entre o frontend e backend  
+- **API:** RESTful para comunicação entre o frontend e backend
 
-## 📦 Como executar o projeto  
 
-1. Clone o repositório:  
-   ```bash
-   git clone https://github.com/seu-usuario/get-a-pet.git
-   cd get-a-pet
