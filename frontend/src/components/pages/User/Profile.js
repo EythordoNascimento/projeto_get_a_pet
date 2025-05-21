@@ -8,6 +8,7 @@ import formStyles from '../../form/Form.module.css'
 import Input from '../../form/Input'
 
 import userFlashMessage from '../../../hoooks/userFlashMessage'
+import RoundedImage from '../../layout/Roundedimage'
 
 function Profile() {
     const [user, setUser] = useState({})
@@ -66,7 +67,7 @@ function Profile() {
             <div className={styles.profile_header}>
                 <h1>Profile</h1>
                 {(user.image || preview ) && (
-                    <img src={preview ? URL.createObjectURL(preview) : `${process.env.REACT_APP_API}/imagens/users/${user.image}`} 
+                    <RoundedImage src={preview ? URL.createObjectURL(preview) : `${process.env.REACT_APP_API}/imagens/users/${user.image}`} 
                     alt={user.name}/>
                 )} 
             </div>
