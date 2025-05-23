@@ -7,7 +7,7 @@ import formStyles from '../../form/Form.module.css'
 
 import Input from '../../form/Input'
 
-import userFlashMessage from '../../../hoooks/userFlashMessage'
+import useFlashMessage from '../../../hooks/useFlashMessage'
 import RoundedImage from '../../layout/Roundedimage'
 
 function Profile() {
