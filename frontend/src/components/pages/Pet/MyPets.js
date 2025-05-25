@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 
 import styles from './Dashboard.module.css'
 
-import RoundedImage from '../../layout/RoundedImage'
+import RoundedImage from '../../layout/Roundedimage'
 
 /* hooks */
 import useFlashMessage from '../../../hooks/useFlashMessage'

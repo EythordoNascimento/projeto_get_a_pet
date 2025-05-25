@@ -1,56 +1,48 @@
-import api from '../../../utils/api'
+import api from '../../../utils/api';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // 🔄 Correção aqui!
 
-import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
-
-import styles from './AddPet.module.css'
-
-import PetForm from '../../form/PetForm'
+import styles from './AddPet.module.css';
+import PetForm from '../../form/PetForm';
 
 /* hooks */
-import useFlashMessage from '../../../hooks/useFlashMessage'
+import useFlashMessage from '../../../hooks/useFlashMessage';
 
 function AddPet() {
-  const [token] = useState(localStorage.getItem('token') || '')
-  const { setFlashMessage } = useFlashMessage()
-  const history = useHistory()
+  const [token] = useState(localStorage.getItem('token') || '');
+  const { setFlashMessage } = useFlashMessage();
+  const navigate = useNavigate(); // 🔄 Correção aqui!
 
   async function registerPet(pet) {
-    let msgType = 'success'
+    let msgType = 'success';
 
-    const formData = new FormData()
+    const formData = new FormData();
 
-    const petFormData = await Object.keys(pet).forEach((key) => {
+    Object.keys(pet).forEach((key) => { // 🔄 Removido `await`, pois `forEach` não funciona bem com `async`
       if (key === 'images') {
         for (let i = 0; i < pet[key].length; i++) {
-          formData.append(`images`, pet[key][i])
+          formData.append('images', pet[key][i]);
         }
       } else {
-        formData.append(key, pet[key])
+        formData.append(key, pet[key]);
       }
-    })
+    });
 
-    formData.append('pet', petFormData)
-
-    const data = await api
-      .post(`pets/create`, formData, {
+    try {
+      const response = await api.post('pets/create', formData, {
         headers: {
           Authorization: `Bearer ${JSON.parse(token)}`,
           'Content-Type': 'multipart/form-data',
         },
-      })
-      .then((response) => {
-        console.log(response.data)
-        return response.data
-      })
-      .catch((err) => {
-        console.log(err)
-        msgType = 'error'
-        return err.response.data
-      })
+      });
 
-    setFlashMessage(data.message, msgType)
-    history.push('/pet/mypets')
+      setFlashMessage(response.data.message, msgType);
+      navigate('/pet/mypets'); // 🔄 Substituído `history.push()` por `navigate()`
+    } catch (err) {
+      console.log(err);
+      msgType = 'error';
+      setFlashMessage(err.response?.data?.message || 'Erro ao cadastrar pet', msgType);
+    }
   }
 
   return (
@@ -61,7 +53,7 @@ function AddPet() {
       </div>
       <PetForm handleSubmit={registerPet} btnText="Cadastrar" />
     </section>
-  )
+  );
 }
 
-export default AddPet
+export default AddPet;
