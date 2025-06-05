@@ -8,7 +8,7 @@ Um espaço para conectar animais que precisam de um lar a pessoas que desejam ad
 
 🚧 **O projeto está em fase de desenvolvimento, com commits frequentes e melhorias constantes!** 🚧  
 
-🚀 Funcionalidades (em progresso)  
+🚀 Funcionalidades (em progresso)  2
 
 ✅ Cadastro de animais para adoção  
 ✅ Busca de pets disponíveis  
