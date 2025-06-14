@@ -6,59 +6,40 @@ const getToken = require('../helpers/get-token')
 const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = class PetController {
-  // create a pet
-  static async create(req, res) {
-    const name = req.body.name
-    const age = req.body.age
-    const description = req.body.description
-    const weight = req.body.weight
-    const color = req.body.color
-    const images = req.files
-    const available = true
-
-    // console.log(req.body)
-    console.log(images)
-    // return
-
-    // validations
-    if (!name) {
-      res.status(422).json({ message: 'O nome é obrigatório!' })
-      return
-    }
-
-    if (!age) {
-      res.status(422).json({ message: 'A idade é obrigatória!' })
-      return
-    }
-
-    if (!weight) {
-      res.status(422).json({ message: 'O peso é obrigatório!' })
-      return
-    }
-
-    if (!color) {
-      res.status(422).json({ message: 'A cor é obrigatória!' })
-      return
-    }
-
-    if (!images) {
-      res.status(422).json({ message: 'A imagem é obrigatória!' })
-      return
-    }
-
-    // get user
+  // get authenticated user or return 401
+  static async getAuthUser(req, res) {
     const token = getToken(req)
     const user = await getUserByToken(token)
 
-    // create pet
+    if (!user) {
+      res.status(401).json({ message: 'Usuário não autenticado.' })
+      return null
+    }
+
+    return user
+  }
+
+  // create a pet
+  static async create(req, res) {
+    const { name, age, description, weight, color } = req.body
+    const images = req.files
+    const available = true
+
+    if (!name || !age || !weight || !color || !images) {
+      return res.status(422).json({ message: 'Todos os campos obrigatórios devem ser preenchidos!' })
+    }
+
+    const user = await PetController.getAuthUser(req, res)
+    if (!user) return
+
     const pet = new Pet({
-      name: name,
-      age: age,
-      description: description,
-      weight: weight,
-      color: color,
-      available: available,
-      images: [],
+      name,
+      age,
+      description,
+      weight,
+      color,
+      available,
+      images: images.map(image => image.filename),
       user: {
         _id: user._id,
         name: user.name,
@@ -67,261 +48,157 @@ module.exports = class PetController {
       },
     })
 
-    images.map((image) => {
-      pet.images.push(image.filename)
-    })
-
     try {
       const newPet = await pet.save()
-
-      res.status(201).json({
-        message: 'Pet cadastrado com sucesso!',
-        newPet: newPet,
-      })
+      res.status(201).json({ message: 'Pet cadastrado com sucesso!', newPet })
     } catch (error) {
-      res.status(500).json({ message: error })
+      res.status(500).json({ message: 'Erro ao salvar o pet.', error: error.message })
     }
   }
 
   // get all registered pets
   static async getAll(req, res) {
     const pets = await Pet.find().sort('-createdAt')
-
-    res.status(200).json({
-      pets: pets,
-    })
+    res.status(200).json({ pets })
   }
 
   // get all user pets
   static async getAllUserPets(req, res) {
-    // get user
-    const token = getToken(req)
-    const user = await getUserByToken(token)
+    const user = await PetController.getAuthUser(req, res)
+    if (!user) return
 
     const pets = await Pet.find({ 'user._id': user._id })
-
-    res.status(200).json({
-      pets,
-    })
+    res.status(200).json({ pets })
   }
 
   // get all user adoptions
   static async getAllUserAdoptions(req, res) {
-    // get user
-    const token = getToken(req)
-    const user = await getUserByToken(token)
+    const user = await PetController.getAuthUser(req, res)
+    if (!user) return
 
     const pets = await Pet.find({ 'adopter._id': user._id })
-
-    res.status(200).json({
-      pets,
-    })
+    res.status(200).json({ pets })
   }
 
   // get a specific pet
   static async getPetById(req, res) {
     const id = req.params.id
 
-    // check if id is valid
     if (!ObjectId.isValid(id)) {
-      res.status(422).json({ message: 'ID inválido!' })
-      return
+      return res.status(422).json({ message: 'ID inválido!' })
     }
 
-    // check if pet exists
     const pet = await Pet.findOne({ _id: id })
 
     if (!pet) {
-      res.status(404).json({ message: 'Pet não encontrado!' })
-      return
+      return res.status(404).json({ message: 'Pet não encontrado!' })
     }
 
-    res.status(200).json({
-      pet: pet,
-    })
+    res.status(200).json({ pet })
   }
 
   // remove a pet
   static async removePetById(req, res) {
     const id = req.params.id
 
-    // check if id is valid
     if (!ObjectId.isValid(id)) {
-      res.status(422).json({ message: 'ID inválido!' })
-      return
+      return res.status(422).json({ message: 'ID inválido!' })
     }
 
-    // check if pet exists
     const pet = await Pet.findOne({ _id: id })
-
     if (!pet) {
-      res.status(404).json({ message: 'Pet não encontrado!' })
-      return
+      return res.status(404).json({ message: 'Pet não encontrado!' })
     }
 
-    // check if user registered this pet
-    const token = getToken(req)
-    const user = await getUserByToken(token)
+    const user = await PetController.getAuthUser(req, res)
+    if (!user) return
 
-    if (pet.user._id.toString() != user._id.toString()) {
-      res.status(404).json({
-        message:
-          'Houve um problema em processar sua solicitação, tente novamente mais tarde!',
-      })
-      return
+    if (pet.user._id.toString() !== user._id.toString()) {
+      return res.status(403).json({ message: 'Você não tem permissão para remover este pet.' })
     }
 
     await Pet.findByIdAndRemove(id)
-
     res.status(200).json({ message: 'Pet removido com sucesso!' })
   }
 
   // update a pet
   static async updatePet(req, res) {
     const id = req.params.id
-    const name = req.body.name
-    const age = req.body.age
-    const description = req.body.description
-    const weight = req.body.weight
-    const color = req.body.color
+    const { name, age, description, weight, color, available } = req.body
     const images = req.files
-    const available = req.body.available
+
+    const pet = await Pet.findOne({ _id: id })
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet não encontrado!' })
+    }
+
+    const user = await PetController.getAuthUser(req, res)
+    if (!user) return
+
+    if (pet.user._id.toString() !== user._id.toString()) {
+      return res.status(403).json({ message: 'Você não tem permissão para atualizar este pet.' })
+    }
 
     const updateData = {}
-
-    // check if pet exists
-    const pet = await Pet.findOne({ _id: id })
-
-    if (!pet) {
-      res.status(404).json({ message: 'Pet não encontrado!' })
-      return
+    if (name) updateData.name = name
+    if (age) updateData.age = age
+    if (description) updateData.description = description
+    if (weight) updateData.weight = weight
+    if (color) updateData.color = color
+    if (available !== undefined) updateData.available = available
+    if (images && images.length > 0) {
+      updateData.images = images.map(image => image.filename)
     }
-
-    // check if user registered this pet
-    const token = getToken(req)
-    const user = await getUserByToken(token)
-
-    if (pet.user._id.toString() != user._id.toString()) {
-      res.status(404).json({
-        message:
-          'Houve um problema em processar sua solicitação, tente novamente mais tarde!',
-      })
-      return
-    }
-
-    // validations
-    if (!name) {
-      res.status(422).json({ message: 'O nome é obrigatório!' })
-      return
-    } else {
-      updateData.name = name
-    }
-
-    if (!age) {
-      res.status(422).json({ message: 'A idade é obrigatória!' })
-      return
-    } else {
-      updateData.age = age
-    }
-
-    if (!weight) {
-      res.status(422).json({ message: 'O peso é obrigatório!' })
-      return
-    } else {
-      updateData.weight = weight
-    }
-
-    if (!color) {
-      res.status(422).json({ message: 'A cor é obrigatória!' })
-      return
-    } else {
-      updateData.color = color
-    }
-
-    if (!images) {
-      res.status(422).json({ message: 'A imagem é obrigatória!' })
-      return
-    } else {
-      updateData.images = []
-      images.map((image) => {
-        updateData.images.push(image.filename)
-      })
-    }
-
-    if (!available) {
-      res.status(422).json({ message: 'O status é obrigatório!' })
-      return
-    } else {
-      updateData.available = available
-    }
-
-    updateData.description = description
 
     await Pet.findByIdAndUpdate(id, updateData)
-
-    res.status(200).json({ pet: pet, message: 'Pet atualizado com sucesso!' })
+    res.status(200).json({ message: 'Pet atualizado com sucesso!' })
   }
 
   // schedule a visit
   static async schedule(req, res) {
     const id = req.params.id
-
-    // check if pet exists
     const pet = await Pet.findOne({ _id: id })
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet não encontrado!' })
+    }
 
-    // check if user owns this pet
-    const token = getToken(req)
-    const user = await getUserByToken(token)
-
-    console.log(pet)
+    const user = await PetController.getAuthUser(req, res)
+    if (!user) return
 
     if (pet.user._id.equals(user._id)) {
-      res.status(422).json({
-        message: 'Você não pode agendar uma visita com seu próprio Pet!',
-      })
-      return
+      return res.status(422).json({ message: 'Você não pode agendar uma visita com seu próprio Pet!' })
     }
 
-    // check if user has already adopted this pet
-    if (pet.adopter) {
-      if (pet.adopter._id.equals(user._id)) {
-        res.status(422).json({
-          message: 'Você já agendou uma visita para este Pet!',
-        })
-        return
-      }
+    if (pet.adopter && pet.adopter._id.equals(user._id)) {
+      return res.status(422).json({ message: 'Você já agendou uma visita para este Pet!' })
     }
 
-    // add user to pet
     pet.adopter = {
       _id: user._id,
       name: user.name,
       image: user.image,
     }
 
-    console.log(pet)
-
     await Pet.findByIdAndUpdate(pet._id, pet)
-
     res.status(200).json({
-      message: `A visita foi agendada com sucesso, entre em contato com ${pet.user.name} no telefone: ${pet.user.phone}`,
+      message: `Visita agendada com sucesso. Contate ${pet.user.name} no telefone: ${pet.user.phone}`,
     })
   }
 
   // conclude a pet adoption
   static async concludeAdoption(req, res) {
     const id = req.params.id
-
-    // check if pet exists
     const pet = await Pet.findOne({ _id: id })
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet não encontrado!' })
+    }
 
     pet.available = false
-
     await Pet.findByIdAndUpdate(pet._id, pet)
 
     res.status(200).json({
-      pet: pet,
-      message: `Parabéns! O ciclo de adoção foi finalizado com sucesso!`,
+      pet,
+      message: 'Parabéns! A adoção foi finalizada com sucesso!',
     })
   }
 }
