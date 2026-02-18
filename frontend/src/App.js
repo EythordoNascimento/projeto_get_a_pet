@@ -18,7 +18,7 @@ import PetDetails from "./components/pages/Pet/PetDetails";
 import MyAdoptions from "./components/pages/Pet/MyAdoptions";
 
 /* Context */
-import { UserProvider } from "./context/UserContext"; // Removendo `UseProvider`, que não existe
+import { UserProvider } from "./context/UserContext";
 
 function App() {
   return (
@@ -31,11 +31,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/user/profile" element={<Profile />} /> 
-            <Route path="/pet/mypets" element={<MyPets/>} /> 
-            <Route path="/pet/add" element={<AddPet/>} /> 
-            <Route path="/pet/edit/:id" element={<EditPet/>} /> 
-            <Route path="/pet/myadoptions" element={<MyAdoptions/>} /> 
-            <Route path="/pet/:id" element={<PetDetails/>} /> 
+            <Route path="/pet/mypets" element={<MyPets />} /> 
+            <Route path="/pet/add" element={<AddPet />} /> 
+            <Route path="/pet/edit/:id" element={<EditPet />} /> 
+            <Route path="/pet/myadoptions" element={<MyAdoptions />} /> 
+            <Route path="/pet/:id" element={<PetDetails />} /> 
             <Route path="/" element={<Home />} />
           </Routes>
         </Container>

@@ -1,12 +1,12 @@
 import api from '../utils/api';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Correção na importação
+import { useNavigate } from 'react-router-dom';
 import useFlashMessage from './useFlashMessage';
 
 export default function useAuth() {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Substituído useHistory
+  const navigate = useNavigate();
   const { setFlashMessage } = useFlashMessage();
 
   useEffect(() => {
@@ -60,7 +60,10 @@ export default function useAuth() {
     setAuthenticated(true);
     localStorage.setItem('token', JSON.stringify(data.token));
 
-    navigate('/'); // Substituído history.push('/') por navigate('/')
+    // Configura o Axios para enviar o token em todas as requisições
+    api.defaults.headers.Authorization = `Bearer ${data.token}`;
+
+    navigate('/');
   }
 
   function logout() {
@@ -70,7 +73,7 @@ export default function useAuth() {
     setAuthenticated(false);
     localStorage.removeItem('token');
     api.defaults.headers.Authorization = undefined;
-    navigate('/login'); // Substituído history.push('/login') por navigate('/login')
+    navigate('/login');
 
     setFlashMessage(msgText, msgType);
   }

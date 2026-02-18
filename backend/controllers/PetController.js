@@ -72,13 +72,18 @@ module.exports = class PetController {
   }
 
   // get all user adoptions
-  static async getAllUserAdoptions(req, res) {
-    const user = await PetController.getAuthUser(req, res)
-    if (!user) return
+static async getAllUserAdoptions(req, res) {
+  const user = await PetController.getAuthUser(req, res)
+  if (!user) return
 
+  try {
+    // busca pets onde o adotante é o usuário logado
     const pets = await Pet.find({ 'adopter._id': user._id })
     res.status(200).json({ pets })
+  } catch (err) {
+    res.status(400).json({ message: 'Não foi possível carregar as adoções.' })
   }
+}
 
   // get a specific pet
   static async getPetById(req, res) {

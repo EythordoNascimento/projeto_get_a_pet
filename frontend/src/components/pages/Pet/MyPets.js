@@ -12,32 +12,37 @@ import useFlashMessage from '../../../hooks/useFlashMessage'
 
 function MyPets() {
   const [pets, setPets] = useState([])
-  const [token] = useState(localStorage.getItem('token') || '')
+  const [token] = useState(localStorage.getItem('token') || '') // ✅ corrigido
   const { setFlashMessage } = useFlashMessage()
 
   useEffect(() => {
-    api
-      .get('/pets/mypets', {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(token)}`,
-        },
-      })
-      .then((response) => {
-        setPets(response.data.pets)
-      })
+    if (token) {
+      api
+        .get('/pet/mypets', { // ✅ corrigido: singular
+          headers: {
+            Authorization: `Bearer ${JSON.parse(token)}`,
+          },
+        })
+        .then((response) => {
+          setPets(response.data.pets)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
   }, [token])
 
   async function removePet(id) {
     let msgType = 'success'
 
     const data = await api
-      .delete(`/pets/${id}`, {
+      .delete(`/pet/${id}`, { // ✅ corrigido: singular
         headers: {
           Authorization: `Bearer ${JSON.parse(token)}`,
         },
       })
       .then((response) => {
-        const updatedPets = pets.filter((pet) => pet._id != id)
+        const updatedPets = pets.filter((pet) => pet._id !== id)
         setPets(updatedPets)
         return response.data
       })
@@ -54,7 +59,7 @@ function MyPets() {
     let msgType = 'success'
 
     const data = await api
-      .patch(`/pets/conclude/${id}`, {
+      .patch(`/pet/conclude/${id}`, null, { 
         headers: {
           Authorization: `Bearer ${JSON.parse(token)}`,
         },
