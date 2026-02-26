@@ -10,7 +10,7 @@ Um espaço para conectar animais que precisam de um lar a pessoas que desejam ad
 
 🚀 Funcionalidades (em progresso)  
 
-✅ Cadastro de animais para adoção! 
+✅ Cadastro de animais para adoção
 ✅ Busca de pets disponíveis  
 ✅ Agendamento de visitas para conhecer os animais  
 ✅ Sistema de acompanhamento da adoção  
@@ -24,6 +24,7 @@ Este projeto utiliza uma stack moderna para garantir eficiência e escalabilidad
 - **Backend:** [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/)  
 - **Banco de Dados:** [MongoDB](https://www.mongodb.com/)  
 - **API:** RESTful para comunicação entre o frontend e backend
+
 
 
 
